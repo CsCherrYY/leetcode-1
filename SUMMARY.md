@@ -10,8 +10,6 @@
 * [Bit operation](bit-operation.md)
 * [DP](dp.md)
 * [Recursive/DFS/BFS](recursive-dfs-bfs.md)
-* [MindVision](mindvision.md)
-* [Graph](graph.md)
 * [Array2](array2.md)
 * [1](1.md)
 
