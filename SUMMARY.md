@@ -12,4 +12,5 @@
 * [Recursive/DFS/BFS](recursive-dfs-bfs.md)
 * [Array2](array2.md)
 * [1](1.md)
+* [2](2.md)
 
