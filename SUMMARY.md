@@ -1,16 +1,6 @@
 # Table of contents
 
-* [Install gitbook](README.md)
-* [Math](math.md)
-* [Array](array.md)
-* [Stack and Queue](stack-and-queue.md)
-* [LinkList](linklist.md)
-* [String](string.md)
-* [Tree](tree.md)
-* [Bit operation](bit-operation.md)
-* [DP](dp.md)
-* [Recursive/DFS/BFS](recursive-dfs-bfs.md)
-* [Array2](array2.md)
-* [1](1.md)
-* [2](2.md)
+* [LeetCode\_50](README.md)
+* [1-25](1.md)
+* [26-50](2.md)
 
