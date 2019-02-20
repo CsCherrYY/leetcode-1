@@ -56,7 +56,9 @@ class Solution
 
 
 
+##  32. Longest Valid Parentheses
 
+求最长合法匹配的括号子串。
 
 
 
