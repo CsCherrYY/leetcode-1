@@ -64,6 +64,69 @@ class Solution
 
 
 
+## 37.Sudoku Solver
+
+解数独。回溯算法，遍历整个数独，找到空白位置'.'
+
+尝试将1-9分别填入该空中，判断填入后数独是否合法，如果合法就继续往下搜索，如果不合法，就继续尝试。如果1-9均不能满足，说明该层搜索不存在解，将其还原成'.'，往上回溯。
+
+```cpp
+class Solution
+{
+  public:
+    bool isValid(vector<vector<char>> &board, int row, int col, char c)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            if (board[i][col] == c)
+                return false; //check row
+            if (board[row][i] == c)
+                return false; //check column
+            if (board[3 * (row / 3) + i / 3][3 * (col / 3) + i % 3] == c)
+                return false; //check 3*3 block
+        }
+        return true;
+    }
+
+    void solveSudoku(vector<vector<char>> &board)
+    {
+        if (board.size() == 0 || board[0].size() == 0)
+            return;
+        solve(board);
+    }
+
+    bool solve(vector<vector<char>> &board)
+    {
+
+        for (int i = 0; i < board.size(); i++)
+        {
+            for (int j = 0; j < board[0].size(); j++)
+            {
+                if (board[i][j] == '.')
+                {
+                    for (char ch = '1'; ch <= '9'; ch++)
+                    {
+
+                        if (isValid(board, i, j, ch))
+                        {
+                            board[i][j] = ch;
+                            if (solve(board))
+                                return true;
+                            else
+                                board[i][j] = '.';
+                        }
+                    }
+
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+
+```
+
 
 
 
