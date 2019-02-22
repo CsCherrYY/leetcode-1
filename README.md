@@ -127,7 +127,36 @@ class Solution
 
 ```
 
+## 41.First Missing Positive
 
+求出没有出现的最小正整数。
 
+通过将对应的数交换到对应位置来判断。比如1应该被交换到nums\[0\]，2为nums\[1\]，这样比较nums\[i\]和i+1的关系就能得出是缺少哪一个数了。
 
+对每一个处于\[1,n\]之间的数，都是需要做换位操作的。对其进行换位知道找到对应的位置，使得nums\[i\]==nums\[nums\[i\]-1\]。不在这个区间内的数可以忽略不管，没有影响。
+
+```cpp
+class Solution
+{
+  public:
+    int firstMissingPositive(vector<int> &nums)
+    {
+
+        for (int i = 0; i < nums.size(); i++)
+        {
+            while (nums[i] >= 1 && nums[i] <= nums.size() &&
+             nums[i] != nums[nums[i] - 1])
+                swap(nums[i], nums[nums[i] - 1]);
+        }
+
+        for (int i = 0; i < nums.size(); i++)
+        {
+            if (nums[i] != (i + 1))
+                return i + 1;
+        }
+
+        return nums.size() + 1;
+    }
+};
+```
 
