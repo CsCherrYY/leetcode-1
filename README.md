@@ -160,3 +160,47 @@ class Solution
 };
 ```
 
+## 42.Trapping Rain Water
+
+数组给出一组高度，求去由此构成的形状能蓄多少水。如图所示。
+
+![](.gitbook/assets/image%20%286%29.png)
+
+对每一个位置分别计算。对于一个位置来说，其能蓄多少水取决于其左边最大值leftmax和右边最大值rightmax，值为min\(leftmax,rightmax\)-height。
+
+用两个指针分别指向左右两侧，如果左边的值较小，那么此时min\(leftmax,rightmax\)必定是取决于左边，所以只需要考虑左边部分。比较当前指针指向的值height\[left\]和Leftmax的大小，如果leftmax较小，就更新其值，如果leftmax较大，则可以容纳leftmax-height\[left\]。对于右侧同理。
+
+```cpp
+class Solution
+{
+  public:
+    int trap(vector<int> &height)
+    {
+
+        int left = 0, right = height.size() - 1;
+        int leftmax = 0, rightmax = 0;
+        int ret = 0;
+        while (left <= right)
+        {
+            if (height[left] < height[right])
+            {
+                if (height[left] > leftmax)
+                    leftmax = height[left];
+                else
+                    ret += leftmax - height[left];
+                left++;
+            }
+            else
+            {
+                if (height[right] > rightmax)
+                    rightmax = height[right];
+                else
+                    ret += rightmax - height[right];
+                right--;
+            }
+        }
+        return ret;
+    }
+};
+```
+
