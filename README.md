@@ -249,3 +249,45 @@ class Solution
 };
 ```
 
+还可以直接利用多指针直接解析，判断能否匹配。
+
+i,j分别表示当前s、p的字符。先判断是否相同，p\[j\]是否是'?'。然后如果p\[j\]是'\*'，就用starindex来记录这个\*的下标，用si来记录此时i指针的值，用于回溯。记录后j++，因为'\*'可以当作空处理。如果之后不匹配再回退。当两个条件都不满足时，需要回退，重新匹配'\*'，用starindex找到上一个\*的位置，将j仍然赋值为其后一位。并将i也赋值为si（即之前i值）的后一位，这样表示用'\*'匹配了s中的第i个字符。
+
+```cpp
+class Solution
+{
+  public:
+    bool isMatch(string s, string p)
+    {
+        int i = 0, j = 0;
+        int si;
+        int starindex = -1;
+        while (s[i])
+        {
+            if (s[i] == p[j] || p[j] == '?')
+            {
+                i++;
+                j++;
+            }
+            else if (p[j] == '*')
+            {
+                starindex = j;
+                j++;
+                si = i;
+            }
+            else if (starindex != -1)
+            {
+                j = starindex + 1;
+                i = ++si;
+            }
+            else
+                return false;
+        }
+
+        while (p[j] == '*')
+            j++;
+        return p[j] == 0;
+    }
+};
+```
+
