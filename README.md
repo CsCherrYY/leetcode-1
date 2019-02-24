@@ -204,3 +204,48 @@ class Solution
 };
 ```
 
+## 44.Wildcard Matching
+
+类似正则表达式的字符串匹配。动态规划。dp\[i\]\[j\]表示s的前i个字符和p前j个字符是否匹配。注意dp\[i\]\[j\]和s\[i-1\]\[s\[j-1\]对应。
+
+首先dp\[0\]\[0\]=true，因为两个空串是匹配的。然后，给dp\[0\]\[j\]赋值，当p\[j-1\]为'\*'才能和空串匹配。而对于dp\[i\]\[0\]，s非空而p为空，必定不匹配。
+
+处理了为0的下标后，不用考虑i-1、j-1越界的情况，方便编写代码。
+
+如果p\[j-1\]是'\*'，那么可以匹配s的最后一个字符，所以dp\[i\]\[j\] = dp\[i-1\]\[j\]。或者\*匹配空串，dp\[i\]\[j\] = dp\[i\]\[j-1\]。二者满足一个即可，所以用或运算。
+
+如果p\[j-1\]是'?'，则可以和s\[i-1\]匹配。或者s\[i-1\]==p\[j-1\]，直接匹配。此时dp\[i\]\[j\] = dp\[i-1\]\[j-1\]
+
+其他情况均不匹配，dp\[i\]\[j\]保持false，不需要赋值。
+
+```cpp
+class Solution
+{
+  public:
+    bool isMatch(string s, string p)
+    {
+
+        vector<vector<bool>> dp(s.length() + 1,
+         vector<bool>(p.length() + 1, false));
+        dp[0][0] = true;
+
+        for (int j = 1; j <= p.length(); j++)
+        {
+            dp[0][j] = dp[0][j - 1] && p[j - 1] == '*';
+        }
+
+        for (int i = 1; i <= s.length(); i++)
+        {
+            for (int j = 1; j <= p.length(); j++)
+            {
+                if (p[j - 1] == '*')
+                    dp[i][j] = dp[i - 1][j] || dp[i][j - 1];
+                else if (p[j - 1] == '?' || p[j - 1] == s[i - 1])
+                    dp[i][j] = dp[i - 1][j - 1];
+            }
+        }
+        return dp[s.length()][p.length()];
+    }
+};
+```
+
