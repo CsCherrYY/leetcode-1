@@ -348,3 +348,61 @@ class Solution
 };
 ```
 
+## 51.N-Queens
+
+N皇后问题。求出所有解。
+
+第一次做的时候，是将整个map全部遍历一次，但实际上因为每一行不能出现相同的皇后，所以每次只要安排第row行的皇后即可。这样只需要遍历n次，并安排合理的col值即可。
+
+此外，在判断两条斜线方向是否有冲突的时候，只需要判断上半部分即可。因为从上往下遍历，下面在没有遍历到的情况下全是'.' 当row==n时表示完成遍历，得到一个解，将其放入ret中返回。
+
+```cpp
+class Solution
+{
+  public:
+    vector<vector<string>> ret;
+
+    vector<vector<string>> solveNQueens(int n)
+    {
+        string temp(n, '.');
+        vector<string> solution(n, temp);
+        helper(solution, 0, n);
+        return ret;
+    }
+
+    void helper(vector<string> &map, int row, int n)
+    {
+        if (row == n){
+            ret.push_back(map);
+            return ;
+        }
+        for (int col = 0; col < n; col++)
+        {
+            if (IsValid(map, row, col, n))
+            {
+                map[row][col] = 'Q';
+                helper(map, row + 1, n);
+                map[row][col] = '.';
+            }
+        }
+    }
+
+    bool IsValid(vector<string> &map, int row, int col, int n)
+    {
+        for (int i = 0; i <= row; i++)
+        {
+            if (map[i][col] == 'Q')
+                return false;
+        }
+
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
+            if (map[i][j] == 'Q')
+                return false;
+        for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++)
+            if (map[i][j] == 'Q')
+                return false;
+        return true;
+    }
+};
+```
+
