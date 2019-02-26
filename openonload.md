@@ -152,11 +152,15 @@ tcpdump、wireshark无法获取onload的包，需使用onload\_tcpdump。
 
 ### 加速限制
 
+#### IP分片
 
+接收端的Onload不会加速IP分片流量，而是通过内核堆栈透明地接收。 TCP很少出现IP分片，因为TCP / IP堆栈将消息分段为MTU大小的IP数据报。 对于UDP，如果数据报对于配置的MTU来说太大，则会对其进行分片。
 
+#### 广播传输
 
+#### IPv6
 
-
+……
 
 
 

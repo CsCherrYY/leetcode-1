@@ -1,5 +1,5 @@
 # Table of contents
 
-* [CICworl](README.md)
+* [CICwork](README.md)
 * [Openonload](openonload.md)
 
