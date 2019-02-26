@@ -406,3 +406,44 @@ class Solution
 };
 ```
 
+## 57.Insert Interval
+
+合并区间。
+
+```cpp
+class Solution
+{
+  public:
+    vector<Interval> insert(vector<Interval> &intervals, Interval newInterval)
+    {
+        auto comp = [](Interval &I1, Interval &I2) {
+            return I1.start < I2.start;
+        };
+        intervals.push_back(newInterval);
+        sort(intervals.begin(), intervals.end(), comp);
+        vector<Interval> ret;
+        int pre = 0;
+        ret.push_back(intervals[pre]);
+        for (int i = 1; i < intervals.size(); i++)
+        {
+
+            if (ret[pre].end < intervals[i].start)
+            {
+                ret.push_back(intervals[i]);
+                pre++;
+            }
+            else if (ret[pre].end < intervals[i].end)
+                ret[pre].end = intervals[i].end;
+        }
+
+        return ret;
+    }
+};
+```
+
+
+
+
+
+
+
