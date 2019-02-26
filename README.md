@@ -164,7 +164,7 @@ class Solution
 
 数组给出一组高度，求去由此构成的形状能蓄多少水。如图所示。
 
-![](.gitbook/assets/image%20%286%29.png)
+![](.gitbook/assets/image%20%281%29.png)
 
 对每一个位置分别计算。对于一个位置来说，其能蓄多少水取决于其左边最大值leftmax和右边最大值rightmax，值为min\(leftmax,rightmax\)-height。
 
