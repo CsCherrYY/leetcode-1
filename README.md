@@ -494,5 +494,49 @@ class Solution
 };
 ```
 
+## 76.Minimum Window Substring
 
+s包含t的最小子串。
+
+滑动窗口。用一个map来记录t中字符出现次数。count用来表示出现次数复合要求的个数，当count==t.size\(\)的时候，s中的字符串包含t
+
+设定begin和end两个指针，先移动end指针，将map对应的值+1，当s\[end\]在t中时，判断此时map\[s\[end\]\]的值是否小于等于0，如果满足，就将count++。当counter==t.size\(\)时，先判断此时的字符串长度d，并更新d和head（用来记录子串起始位置）。然后移动head指针，如果map\[s\[begin\]\]&lt;0，说明此时的窗口内的字符串已经不能包含t了，count--，跳出循环，继续往后移动end。
+
+```cpp
+class Solution
+{
+  public:
+    string minWindow(string s, string t)
+    {
+        vector<int> map(128, 0);
+        for (auto c : t)
+            map[c]--;
+        int counter = 0, begin = 0, end = 0, d = INT_MAX, head = 0;
+        while (end < s.size())
+        {
+            map[s[end]]++;
+            if (map[s[end]] <= 0)
+                counter++;
+            end++;
+
+            while (counter == t.size())
+            {
+                if (end - begin < d)
+                {
+                    d = end - begin;
+                    head = begin;
+                }
+
+                map[s[begin]]--;
+                if (map[s[begin]] < 0)
+                    counter--;
+
+                begin++;
+            }
+        }
+
+        return d == INT_MAX ? "" : s.substr(head, d);
+    }
+};
+```
 
