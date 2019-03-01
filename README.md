@@ -544,7 +544,37 @@ class Solution
 
 ## 84.Largest Rectangle in Histogram
 
+求面积最大的长方形。
 
+用一个栈来存储高度的下标，当栈顶的高度比当前高度小的时候，直接进栈，所以栈内的高度是从底向顶递增的。如果栈顶比当前高度高，那么出栈，作为长方形的高。然后计算宽，通过当前下标i和最大高度的下标计算出长度。
+
+```cpp
+  class Solution {
+    public:
+        int largestRectangleArea(vector<int> &height) {
+            
+            int ret = 0;
+            height.push_back(0);
+            vector<int> index;
+            
+            for(int i = 0; i < height.size(); i++)
+            {
+                while(index.size() > 0 && height[index.back()] >= height[i])
+                {
+                    int h = height[index.back()];
+                    index.pop_back();
+                    
+                    int sidx = index.size() > 0 ? index.back() : -1;
+                    if(h * (i-sidx-1) > ret)
+                        ret = h * (i-sidx-1);
+                }
+                index.push_back(i);
+            }
+            
+            return ret;
+        }
+    };
+```
 
 ## 85.Maximal Rectangle
 
