@@ -617,9 +617,50 @@ class Solution
 };
 ```
 
+## 115.Distinct Subsequences
 
+求S中有多少个子序列能构成t。
 
+同样是动态规划，dp\[i\]\[j\]表示字符串s\[0,i\)有dp\[i\]\[j\]个t\[0,j\)子序列。
 
+那么当s\[i-1\]==t\[j-1\]时，最后一位相同，此时dp\[i-1\]\[j-1\]满足的个数+t\[j-1\]就能构成t\[j\]，所以有dp\[i\]\[j\] = dp\[i-1\]\[j\]+dp\[i-1\]\[j-1\]
+
+很奇怪，如果定义int型数组会发生溢出，不知道为啥。
+
+```cpp
+class Solution
+{
+  public:
+    int numDistinct(string s, string t)
+    {
+
+        if (s.length() < t.length())
+            return 0;
+        vector<vector<long>> dp(s.length() + 1, 
+        vector<long>(t.length() + 1, 0));
+
+        for (int j = 0; j <= t.length(); j++)
+            dp[0][j] = 0;
+
+        for (int i = 0; i <= s.length(); i++)
+            dp[i][0] = 1;
+
+        for (int i = 1; i <= s.length(); i++)
+        {
+            for (int j = 1; j <= t.length(); j++)
+            {
+
+                if (s[i - 1] == t[j - 1])
+                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+                else
+                    dp[i][j] = dp[i - 1][j];
+            }
+        }
+
+        return dp[s.length()][t.length()];
+    }
+};
+```
 
 
 
