@@ -6,7 +6,7 @@
 
 `apt install cmake`
 
-## Step1 起步
+## Step0 起步
 
 最基础的项目工程是通过单一源文件编译得到可执行文件。对于这样简单的工程，只需要两行CMakeLists.txt代码即可实现。以下是一个简单示例。
 
@@ -97,7 +97,7 @@ Scanning dependencies of target Tutorial
 [100%] Built target Tutorial
 ```
 
-### 添加版本号和配置头文件
+## Step1 添加版本号和配置头文件
 
 我们要给当前工程添加的第一个特性是版本号信息。尽管可以在源代码中完成该操作，但在CMakeLists.txt中完成此操作能够大大提升灵活性。我们可以按照以下方式修改CMakeLists.txt
 
@@ -718,6 +718,70 @@ double sqrtTable[] = {
 3,
 0};
 ```
+
+## Step7 构建安装程序
+
+接下来我们假设我们需要将项目提供给他人使用。我们希望在多种平台上提供二进制和源代码。 这和我们之前的安装操作\(Step4\)有一些不同。在这个例子中，我们会构建支持二进制安装和包管理的安装程序。为此，我们使用CPack来创建平台安装程序。具体来说，需要在顶层CMakeLists.txt中添加几行。
+
+```bash
+ include(InstallRequiredSystemLibraries)
+ set(CPACK_RESOURCE_FILE_LICENSE  \
+  "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
+ set(CPACK_PACKAGE_VERSION_MAJOR "${Tutorial_VERSION_MAJOR}")
+ set(CPACK_PACKAGE_VERSION_MINOR "${Tutorial_VERSION_MINOR}")
+ include(CPack)
+```
+
+我们首先include\(InstallRequiredSystemLibraries\)，这个模块包含项目所需的运行库。 然后设置CPack变量，用于存储许可证和版本信息。版本信息就是之前我们设置的。最后include\(CPack\) 模块，它会利用这些变量和一些系统设置来搭建安装包。
+
+正常Cmake make之后，用cpack命令构建二进制分发。命令输出：
+
+```text
+root@x:~/qinrui/cmake/step7/build# cpack
+CPack: Create package using STGZ
+CPack: Install projects
+CPack: - Run preinstall target for: Tutorial
+CPack: - Install project: Tutorial
+CPack: Create package
+CPack: - package: /root/qinrui/cmake/step7/build/ \
+Tutorial-1.0.1-Linux.sh generated.
+CPack: Create package using TGZ
+CPack: Install projects
+CPack: - Run preinstall target for: Tutorial
+CPack: - Install project: Tutorial
+CPack: Create package
+CPack: - package: /root/qinrui/cmake/step7/build/ \
+Tutorial-1.0.1-Linux.tar.gz generated.
+CPack: Create package using TZ
+CPack: Install projects
+CPack: - Run preinstall target for: Tutorial
+CPack: - Install project: Tutorial
+CPack: Create package
+CPack: - package: /root/qinrui/cmake/step7/build/ \
+Tutorial-1.0.1-Linux.tar.Z generated.
+```
+
+生成的压缩文件中，有三个目录，/bin，/include, /lib 分别对应可执行文件、包含文件、库文件
+
+## Step8 添加仪表盘
+
+添加对将测试结果提交到仪表板的支持非常简单。我们 在之前的步骤中已经为我们的项目定义了许多测试 教程。我们只需运行这些测试并将其提交到仪表板。为了include仪表盘我们在顶层CMakeLists.txt include CTest模块
+
+```text
+Replace:
+  # enable testing
+  enable_testing()
+
+With:
+  # enable dashboard scripting
+  include(CTest)
+```
+
+Ctest模块会自动调用enable\_testing，所以可以删除。
+
+我们还需要创建一个CTestConfig.cmake文件，我们可以在其中指定项目名称以及需要提交到仪表盘的部分。
+
+
 
 
 
