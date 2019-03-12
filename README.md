@@ -482,21 +482,242 @@ test 5
 Total Test time (real) =   0.01 sec
 ```
 
+## Step5 添加系统自检
 
+让我们考虑当往项目中添加的代码中依赖的功能目标平台没有的情况。比如，我们需要添加的代码取决于目标平台是否有log和exp函数。我们假设这些功能不常见。
 
+如果平台拥有log和exp函数，我们就在mysqrt函数中使用它们来计算平方根。我们先通过在顶层CMakeLists.txt中使用CheckSymbolExists.cmake宏来测试这些功能。
 
+```bash
+# 当前系统是否提供log和exp函数？
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_LIBRARIES "m")
+check_symbol_exists(log "math.h" HAVE_LOG)
+check_symbol_exists(exp "math.h" HAVE_EXP)
+```
 
+cmake时的输出：
 
+```text
+-- Looking for log
+-- Looking for log - found
+-- Looking for exp
+-- Looking for exp - found
+```
 
+接下来在TutorialConfig.h.in中添加这些定义，使我们能够在mysqrt.cxx中使用它们
 
+```bash
+// 平台是否有log和exp函数
+#cmakedefine HAVE_LOG
+#cmakedefine HAVE_EXP
+```
 
+接下来修改MathFunctions/mysqrt.cxx。先引用cmath头文件，然后使用\#ifdef，给出一个由log和exp函数实现的sqrt函数。
 
+```cpp
+#include "MathFunctions.h"
+//#include "TutorialConfig.h"
+#include <iostream>
+#include <cmath>
+double mysqrt(double x)
+{
+	if (x <= 0)
+	{
+		return 0;
+	}
 
+	// 如果有log和exp就使用它们
+#if defined(HAVE_LOG) && defined(HAVE_EXP)
+	double result = exp(log(x) * 0.5);
+	std::cout << "Computing sqrt of " << x
+			  << " to be " << result << " using log" << std::endl;
+#else
+	double result = x;
 
+	//循环十次
+	for (int i = 0; i < 10; ++i)
+	{
+		if (result <= 0)
+		{
+			result = 0.1;
+		}
+		double delta = x - (result * result);
+		result = result + 0.5 * delta / result;
+		std::cout << "Computing sqrt of " << x
+				  << " to be " << result << std::endl;
+	}
+#endif
+	return result;
+}
 
+```
 
+此时如果我们运行cmake，HAVE\_LOG和HAVE\_EXP都被定义了，但是mysqrt并没有使用它们。那是因为我们没有在mysqrt.cxx中引用TutorialConfig.h（被我特意注释了）。同时我们要更新对应的CMakeLists.txt文件，告诉它该头文件在哪。
 
+```text
+  add_library(MathFunctions mysqrt.cxx)
 
+# 声明所有链接到我们的都需要引用当前目录，
+# 去寻找MathFunctions.h，而我们自身不需要
+# 我们自己需要 Tutorial_BINARY_DIR 但我们的使用者不需要，
+# 所以定义为PRIVATE
+  target_include_directories(MathFunctions
+            INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+            PRIVATE ${Tutorial_BINARY_DIR}
+            )
+
+  install(TARGETS MathFunctions DESTINATION lib)
+  install(FILES MathFunctions.h DESTINATION include)
+```
+
+实际上，更好地处理方法是将HAVE\_LOG和HAVE\_EXP定义在MathFunctions.h中。
+
+运行结果：
+
+```cpp
+root@x:~/qinrui/cmake/step5/build# ./Tutorial 123
+Computing sqrt of 123 to be 11.0905 using log
+Mysqrt: The square root of 123 is 11.0905
+```
+
+## Step6 添加自定义命令和生成文件
+
+本节我们会展示如何将一个生成的文件添加到应用程序的构建过程中。在本例中，我们建立一张预先计算好的平方根表，作为构建的一部分，将表编译进应用程序中。
+
+首先，我们需要一个生成表的程序。我们在MathFunctions子目录下新建MakeTable.cxx文件来实现这个功能。
+
+```cpp
+// 建立平方根表
+#include <cmath>
+#include <fstream>
+#include <iostream>
+
+int main(int argc, char *argv[])
+{
+	if (argc < 2)
+	{
+		return 1;
+	}
+
+	std::ofstream fout(argv[1], std::ios_base::out);
+	const bool fileOpen = fout.is_open();
+	if (fileOpen)
+	{
+		fout << "double sqrtTable[] = {" << std::endl;
+		for (int i = 0; i < 10; ++i)
+		{
+			fout << sqrt(static_cast<double>(i)) << "," << std::endl;
+		}
+		fout << "0};" << std::endl;
+		fout.close();
+	}
+	return fileOpen ? 0 : 1;
+}
+
+```
+
+注意在这段C++程序中，输出文件名是由命令行参数决定的。
+
+接下来就是要在MathFunctions的CMakeLists.txt中添加命令，使改程序的运行成为构建的一部分。
+
+```text
+  #  首先添加一个生成表格的可执行文件
+  add_executable(MakeTable MakeTable.cxx)
+
+# 添加命令去生成源代码
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Table.h
+  COMMAND MakeTable ${CMAKE_CURRENT_BINARY_DIR}/Table.h
+  DEPENDS MakeTable
+  )
+
+#  添加库
+add_library(MathFunctions
+            mysqrt.cxx
+            ${CMAKE_CURRENT_BINARY_DIR}/Table.h
+            )
+# 声明所有链接到我们的都需要引用当前目录，
+# 去寻找MathFunctions.h，而我们自身不需要
+# 我们自己需要 Tutorial_BINARY_DIR 但我们的使用者不需要，
+# 所以定义为PRIVATE
+# 我们需要可执行目录去寻找table.h
+target_include_directories(MathFunctions
+          INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+          PRIVATE ${Tutorial_BINARY_DIR}
+                  ${CMAKE_CURRENT_BINARY_DIR}
+          )
+install(TARGETS MathFunctions DESTINATION lib)
+install(FILES MathFunctions.h DESTINATION include)
+
+```
+
+首先，MakeTable的可执行文件被添加。之后我们添加一个命令，用于指定Table.h并运行生成MakeTable 所以我们需要让CMake知道mysqrt.cxx依赖于生成的文件Table.h。将Table.h添加到MathFunctions库中的源代码列表。 此外还需要将可执行目录添加到include目录列表中，以便Table.h能够发现并包含在mysqrt.cxx中。
+
+```cpp
+#include "MathFunctions.h"
+#include "TutorialConfig.h"
+#include <iostream>
+
+// 引用生成的表
+#include "Table.h"
+
+#include <cmath>
+
+double mysqrt(double x)
+{
+	if (x <= 0)
+	{
+		return 0;
+	}
+
+	// 通过查表来辅助查找一个初值
+	double result = x;
+	if (x >= 1 && x < 10)
+	{
+		result = sqrtTable[static_cast<int>(x)];
+	}
+
+	// 循环计算十次
+	for (int i = 0; i < 10; ++i)
+	{
+		if (result <= 0)
+		{
+			result = 0.1;
+		}
+		double delta = x - (result * result);
+		result = result + 0.5 * delta / result;
+		std::cout << "Computing sqrt of " << x
+				  << " to be " << result << std::endl;
+	}
+
+	return result;
+}
+
+```
+
+cmake编译运行，找到Table.h的位置及内容
+
+```text
+root@x:~/qinrui/cmake/step6# find . -name Table.h
+./build/MathFunctions/Table.h
+```
+
+```text
+root@x:~/qinrui/cmake/step6/build# cat MathFunctions/Table.h 
+double sqrtTable[] = {
+0,
+1,
+1.41421,
+1.73205,
+2,
+2.23607,
+2.44949,
+2.64575,
+2.82843,
+3,
+0};
+```
 
 
 
