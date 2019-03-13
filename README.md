@@ -1,4 +1,14 @@
+---
+description: cmake官方教程（翻译）
+---
+
 # Cmake tutorial
+
+[官方教程](https://cmake.org/cmake-tutorial/) 
+
+本教程所有源代码取自cmake源码[Test/Tutorial](https://gitlab.kitware.com/cmake/cmake/tree/master/Tests/Tutorial)
+
+ [pdf版](https://github.com/hlmmd/cmake-tutorial/releases/download/1.0/cmake_tutorial.pdf) 
 
 本教程运行环境为ubuntu 16.04，cmake 版本3.5.1
 
